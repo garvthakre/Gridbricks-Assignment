@@ -1,8 +1,11 @@
 import sys
+import re
 from pathlib import Path
 from typing import List, Optional
 from fastapi import FastAPI, Query, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import RedirectResponse
 
 # Ensure app is in path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -36,6 +39,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def normalize_slashes(request: Request, call_next):
+    # Normalize duplicate consecutive slashes in the path (e.g. //api/dates -> /api/dates)
+    if "//" in request.url.path:
+        clean_path = re.sub(r"/+", "/", request.url.path)
+        request.scope["path"] = clean_path
+    return await call_next(request)
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/docs")
 
 @app.get("/api/health")
 def health_check():

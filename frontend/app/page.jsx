@@ -7,7 +7,9 @@ import AccuracyView from '../components/AccuracyView';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('decision');
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  // Strip trailing slashes to prevent double-slash 404 errors (e.g. domain.com//api/...)
+  const rawApiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  const apiBaseUrl = rawApiUrl.replace(/\/+$/, '');
 
   return (
     <div className="flex-1 flex flex-col bg-slate-950 text-slate-100">
