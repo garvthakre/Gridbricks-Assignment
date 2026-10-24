@@ -69,28 +69,28 @@ export default function AccuracyView({ apiBaseUrl = '' }) {
   }, [cutoffTime, apiBaseUrl]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Cutoff Selector & Header info */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-base font-bold text-white tracking-tight flex items-center space-x-2">
-            <BarChart3 className="w-5 h-5 text-emerald-400" />
+          <h2 className="text-sm sm:text-base font-bold text-white tracking-tight flex items-center space-x-2">
+            <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 shrink-0" />
             <span>January 2026 Forecast Verification Benchmark</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Evaluates 1,488 settlement half-hours (Jan 2 – Feb 1, 2026) across Great Britain wind actuals vs. decision-time forecasts.
+          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+            Evaluates 1,488 settlement half-hours (Jan 2 – Feb 1, 2026) across GB wind actuals vs. decision-time forecasts.
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <label className="text-xs font-semibold text-slate-400 flex items-center space-x-1.5">
+        <div className="flex items-center space-x-2 self-start sm:self-auto">
+          <label className="text-[11px] sm:text-xs font-semibold text-slate-400 flex items-center space-x-1.5 shrink-0">
             <Clock className="w-3.5 h-3.5 text-amber-400" />
-            <span>ASSUMED CUTOFF:</span>
+            <span>CUTOFF:</span>
           </label>
           <select
             value={cutoffTime}
             onChange={(e) => setCutoffTime(e.target.value)}
-            className="bg-slate-950 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            className="bg-slate-950 border border-slate-700 text-slate-200 text-xs sm:text-sm rounded-lg px-2.5 py-1.5 sm:px-3 sm:py-1.5 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
           >
             {cutoffs.map((c) => (
               <option key={c.value} value={c.value}>
@@ -104,9 +104,9 @@ export default function AccuracyView({ apiBaseUrl = '' }) {
       {/* Primary Plain-Language Takeaway & Procurement Buffer */}
       {summary && <TakeawayCard summary={summary} />}
 
-      {/* Benchmark KPI Cards */}
+      {/* Benchmark KPI Cards (Responsive 2 / 3 / 6 column grid) */}
       {summary && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
           <MetricCard
             title="Mean Abs Error"
             value={summary.mae_mw ? `${summary.mae_mw.toLocaleString()}` : '--'}
@@ -159,67 +159,68 @@ export default function AccuracyView({ apiBaseUrl = '' }) {
       )}
 
       {/* Detailed Analysis Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Chart 1: Diurnal Error Distribution (Hour of Day) */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-          <div className="border-b border-slate-800 pb-3 mb-4">
-            <h3 className="text-sm font-bold text-white tracking-tight flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-emerald-400" />
-              <span>Diurnal Error Profile (Hour of Day 00:00 - 23:00)</span>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 sm:p-5 shadow-xl">
+          <div className="border-b border-slate-800 pb-2.5 mb-3">
+            <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight flex items-center space-x-2">
+              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+              <span>Diurnal Error Profile (00:00 - 23:00 UTC)</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
               Identifies which settlement hours exhibit highest forecast error and bias.
             </p>
           </div>
 
-          <div className="h-72 w-full">
+          <div className="h-60 sm:h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={diurnal} margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
+              <BarChart data={diurnal} margin={{ top: 10, right: 10, bottom: 15, left: -10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                 <XAxis
                   dataKey="hour_of_day"
                   stroke="#64748b"
-                  fontSize={11}
+                  fontSize={10}
                   tickFormatter={(h) => `${h}:00`}
+                  interval={2}
                 />
                 <YAxis
                   stroke="#64748b"
-                  fontSize={11}
-                  tickFormatter={(val) => `${(val / 1000).toFixed(1)}k`}
+                  fontSize={10}
+                  tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
                 />
                 <Tooltip content={<DiurnalTooltip />} />
-                <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 11, paddingBottom: 10 }} />
-                <Bar dataKey="mae_mw" name="Mean Abs Error (MW)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="bias_mw" name="Mean Bias (MW)" fill="#38bdf8" radius={[4, 4, 0, 0]} />
+                <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 11, paddingBottom: 6 }} />
+                <Bar dataKey="mae_mw" name="MAE (MW)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="bias_mw" name="Bias (MW)" fill="#38bdf8" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Chart 2: Error vs. Forecast Lead Time Horizon */}
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-          <div className="border-b border-slate-800 pb-3 mb-4">
-            <h3 className="text-sm font-bold text-white tracking-tight flex items-center space-x-2">
-              <TrendingDown className="w-4 h-4 text-emerald-400" />
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 sm:p-5 shadow-xl">
+          <div className="border-b border-slate-800 pb-2.5 mb-3">
+            <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight flex items-center space-x-2">
+              <TrendingDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
               <span>Error vs. Forecast Horizon (Lead Time)</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Shows how forecast reliability changes as lead time increases from 12h to 36h+.
+            <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
+              Shows how reliability degrades as lead time increases from 12h to 36h+.
             </p>
           </div>
 
-          <div className="h-72 w-full">
+          <div className="h-60 sm:h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={leadTimes} margin={{ top: 10, right: 10, bottom: 20, left: 10 }}>
+              <BarChart data={leadTimes} margin={{ top: 10, right: 10, bottom: 15, left: -10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                <XAxis dataKey="lead_time_bin" stroke="#64748b" fontSize={11} />
+                <XAxis dataKey="lead_time_bin" stroke="#64748b" fontSize={10} />
                 <YAxis
                   stroke="#64748b"
-                  fontSize={11}
-                  tickFormatter={(val) => `${(val / 1000).toFixed(1)}k`}
+                  fontSize={10}
+                  tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
                 />
                 <Tooltip content={<LeadTimeTooltip />} />
-                <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 11, paddingBottom: 10 }} />
+                <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 11, paddingBottom: 6 }} />
                 <Bar dataKey="mae_mw" name="MAE (MW)" fill="#10b981" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="rmse_mw" name="RMSE (MW)" fill="#f43f5e" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -229,36 +230,37 @@ export default function AccuracyView({ apiBaseUrl = '' }) {
       </div>
 
       {/* Chart 3: Daily Accuracy Trend Across January 2026 */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-        <div className="border-b border-slate-800 pb-3 mb-4">
-          <h3 className="text-sm font-bold text-white tracking-tight flex items-center space-x-2">
-            <Calendar className="w-4 h-4 text-emerald-400" />
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-3.5 sm:p-5 shadow-xl">
+        <div className="border-b border-slate-800 pb-2.5 mb-3">
+          <h3 className="text-xs sm:text-sm font-bold text-white tracking-tight flex items-center space-x-2">
+            <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
             <span>Daily Error Evolution (January 2026 Time-Series)</span>
           </h3>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5">
             Day-by-day MAE and Bias across all 31 delivery days in the decision window.
           </p>
         </div>
 
-        <div className="h-64 w-full">
+        <div className="h-56 sm:h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={daily} margin={{ top: 10, right: 15, bottom: 20, left: 10 }}>
+            <LineChart data={daily} margin={{ top: 10, right: 10, bottom: 15, left: -10 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
               <XAxis
                 dataKey="delivery_date"
                 stroke="#64748b"
-                fontSize={11}
+                fontSize={10}
                 tickFormatter={(d) => d.substring(8)}
+                interval={3}
               />
               <YAxis
                 stroke="#64748b"
-                fontSize={11}
-                tickFormatter={(val) => `${(val / 1000).toFixed(1)}k`}
+                fontSize={10}
+                tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
               />
               <Tooltip content={<DailyTooltip />} />
-              <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 11, paddingBottom: 10 }} />
-              <Line type="monotone" dataKey="mae_mw" name="Daily MAE (MW)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 2 }} />
-              <Line type="monotone" dataKey="bias_mw" name="Daily Bias (MW)" stroke="#38bdf8" strokeWidth={2} dot={{ r: 2 }} />
+              <Legend verticalAlign="top" align="right" wrapperStyle={{ fontSize: 11, paddingBottom: 6 }} />
+              <Line type="monotone" dataKey="mae_mw" name="Daily MAE (MW)" stroke="#f59e0b" strokeWidth={2} dot={{ r: 1.5 }} />
+              <Line type="monotone" dataKey="bias_mw" name="Daily Bias (MW)" stroke="#38bdf8" strokeWidth={2} dot={{ r: 1.5 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
